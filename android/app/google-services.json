@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "250510380886",
+    "project_id": "qr-code-moblie-scanner",
+    "storage_bucket": "qr-code-moblie-scanner.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:250510380886:android:0a92a3fcc0c304f9c510f7",
+        "android_client_info": {
+          "package_name": "com.example.qr_code_moblie_scanner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiI8ySRo3wodSK9D88xJx2Vh5PwfNqgcI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
