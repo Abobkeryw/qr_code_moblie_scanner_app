@@ -15,13 +15,17 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscureText = true;
+  bool _isLoading = false; // fixed: not final
 
   Future<void> loginUser() async {
+    setState(() => _isLoading = true);
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+
+      if (!mounted) return;
 
       // Show success dialog
       showDialog(
@@ -51,12 +55,11 @@ class _MyHomePageState extends State<MyHomePage> {
           actionsAlignment: MainAxisAlignment.end,
           actions: [
             TextButton(
-              onPressed: () async {
-                Navigator.pop(context); // close alert
+              onPressed: () {
+                Navigator.pop(context);
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) =>  QRCodePage()
-                  ),
+                  MaterialPageRoute(builder: (_) => const QRCodePage()),
                 );
               },
               style: TextButton.styleFrom(
@@ -85,6 +88,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), backgroundColor: Colors.red),
       );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -113,14 +118,17 @@ class _MyHomePageState extends State<MyHomePage> {
                     SizedBox(height: 90),
                     Text(
                       'Login',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 70),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25),
+                padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Column(
                   children: [
                     TextField(
@@ -135,7 +143,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         'Password',
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _obscureText ? Icons.visibility : Icons.visibility_off,
+                            _obscureText
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                           ),
                           onPressed: () =>
                               setState(() => _obscureText = !_obscureText),
@@ -153,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               builder: (_) => const ForgotPasswordScreen(),
                             ),
                           );
-                        }, // Add forgot password navigation
+                        },
                         child: const Text(
                           'Forgot Password?',
                           style: TextStyle(color: Colors.grey),
@@ -161,25 +171,38 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                      Padding(padding: const EdgeInsets.symmetric(horizontal: 35),
-                        child: SizedBox(
-                          height: 50,
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: loginUser,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFF7B51),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: const Text(
-                              'Login',
-                              style: TextStyle(fontSize: 16, color: Colors.white),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 35),
+                      child: SizedBox(
+                        height: 50,
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : loginUser,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFF7B51),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  'Login',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
                         ),
                       ),
+                    ),
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -189,13 +212,16 @@ class _MyHomePageState extends State<MyHomePage> {
                           style: TextStyle(color: Colors.grey),
                         ),
                         TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const RegisterScreen(),
-                                ));
-                          },
+                          onPressed: _isLoading
+                              ? null
+                              : () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const RegisterScreen(),
+                                    ),
+                                  );
+                                },
                           child: const Text(
                             'Sign Up',
                             style: TextStyle(color: Color(0xFFFF7B51)),
@@ -226,32 +252,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Colors.blue,width: 2),
-      ),
-    );
-  }
-}
-
-class home extends StatelessWidget {
-  const home({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Welcome to the Home Page!'),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Go to QR Code Screen'),
-            ),
-          ],
-        ),
+        borderSide: const BorderSide(color: Colors.blue, width: 2),
       ),
     );
   }
